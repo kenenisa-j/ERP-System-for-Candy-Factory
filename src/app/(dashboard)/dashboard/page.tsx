@@ -20,14 +20,12 @@ export default function DashboardPage() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
 
-  // 1. Auth Guard
   useEffect(() => {
     if (!authLoading && user && user.role !== 'superadmin' && user.role !== 'owner') {
       router.push('/');
     }
   }, [user, authLoading, router]);
 
-  // 2. Data Fetcher
   useEffect(() => {
     if (user && (user.role === 'superadmin' || user.role === 'owner')) {
       fetchDashboardData();
@@ -46,54 +44,67 @@ export default function DashboardPage() {
     }
   };
 
-  // 3. Loading & Auth States
   if (authLoading || loading) {
-    return <div className="p-10 text-center text-gray-500 animate-pulse">Loading Operations Center...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        <div className="animate-pulse">Loading Intelligence Center...</div>
+      </div>
+    );
   }
   if (!user || !data) return null;
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen space-y-6">
-      
-      {/* HEADER SECTION: Executive Controls */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Intelligence Center</h1>
-          <p className="text-sm text-gray-500">
-            {new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })} Overview
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <MonthSelector month={month} year={year} onChange={(m, y) => { setMonth(m); setYear(y); }} />
-          <ExportReportButton month={month} year={year} />
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* HEADER SECTION: Responsive Layout */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight">Intelligence Center</h1>
+            <p className="text-xs md:text-sm text-gray-500">
+              {new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })} Overview
+            </p>
+          </div>
+          <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="flex-1 sm:flex-none">
+              <MonthSelector month={month} year={year} onChange={(m, y) => { setMonth(m); setYear(y); }} />
+            </div>
+            <ExportReportButton month={month} year={year} />
+          </div>
+        </header>
 
-      {/* KPI CARDS: Business Health */}
-      <DashboardCards data={{ ...data.summary, trends: data.summary.trends }} />
+        {/* KPI CARDS: Responsive Grid */}
+        <DashboardCards data={{ ...data.summary, trends: data.summary.trends }} />
 
-      {/* OPERATIONAL ALERTS: Metrics Strip */}
-      <MetricsStrip data={data.operational} />
+        {/* OPERATIONAL ALERTS */}
+        <MetricsStrip data={data.operational} />
 
-      {/* DETAILED FEED: Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <RecentRecordsTable 
-            title="Latest Sales" 
-            records={data.recentRecords.sales || []} 
-            type="sale" 
-          />
-          <RecentRecordsTable 
-            title="Latest Expenses" 
-            records={data.recentRecords.expenses || []} 
-            type="expense" 
-          />
+        {/* DETAILED FEED: Responsive Two-Column Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+              <RecentRecordsTable 
+                title="Latest Sales" 
+                records={data.recentRecords.sales || []} 
+                type="sale" 
+              />
+            </div>
+            <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+              <RecentRecordsTable 
+                title="Latest Expenses" 
+                records={data.recentRecords.expenses || []} 
+                type="expense" 
+              />
+            </div>
+          </div>
+          
+          {/* ACTIVITY FEED */}
+          <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+            <ActivityStream logs={data.recentActivity || []} />
+          </div>
         </div>
         
-        {/* ACTIVITY FEED: Accountability */}
-        <ActivityStream logs={data.recentActivity || []} />
       </div>
-      
     </div>
   );
 }

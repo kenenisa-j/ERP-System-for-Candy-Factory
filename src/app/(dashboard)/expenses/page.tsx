@@ -23,7 +23,6 @@ export default function ExpensesPage() {
   const { range, setRange, startDate, endDate } = useTableFilters();
   const isMounted = useRef(true);
 
-  // Define admin status
   const isAdmin = user?.role === 'superadmin' || user?.role === 'owner';
 
   const fetchExpenses = async () => {
@@ -69,47 +68,52 @@ export default function ExpensesPage() {
   if (error) return <ErrorMessage message={error} onRetry={fetchExpenses} />;
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Modern Header Section - Stats hidden for non-admins */}
-      <ModuleSummaryHeader 
-        title="Expenses" 
-        isAdmin={isAdmin}
-        stats={[
-          { label: "Total Expenses", value: `${totalAmount.toLocaleString()} Birr` },
-          { label: "Records", value: expenses.length }
-        ]}
-        filterComponent={<DateFilters range={range} onChange={setRange} />}
-      />
-
-      {/* Main Table Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h3 className="font-bold text-gray-700">Recent Transactions</h3>
-          <button 
-            onClick={handleAddClick}
-            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md hover:shadow-lg"
-          >
-            + Add Expense
-          </button>
-        </div>
+    // Responsive padding and centered max-width container
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
         
-        <div className="overflow-x-auto">
-          <ExpensesTable 
-            expenses={expenses} 
-            onEdit={handleEditClick} 
-            canEdit={canEdit} 
-          />
-        </div>
-      </div>
+        {/* Modern Header Section */}
+        <ModuleSummaryHeader 
+          title="Expenses" 
+          isAdmin={isAdmin}
+          stats={[
+            { label: "Total Expenses", value: `${totalAmount.toLocaleString()} Birr` },
+            { label: "Records", value: expenses.length }
+          ]}
+          filterComponent={<DateFilters range={range} onChange={setRange} />}
+        />
 
-      {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
-          <ExpenseForm 
-            initialData={editingExpense} 
-            onSuccess={() => { setIsModalOpen(false); fetchExpenses(); }} 
-          />
-        </Modal>
-      )}
+        {/* Main Table Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Header section with responsive stacking */}
+          <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="font-bold text-gray-700">Recent Transactions</h3>
+            <button 
+              onClick={handleAddClick}
+              className="w-full sm:w-auto bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md hover:shadow-lg"
+            >
+              + Add Expense
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto w-full">
+            <ExpensesTable 
+              expenses={expenses} 
+              onEdit={handleEditClick} 
+              canEdit={canEdit} 
+            />
+          </div>
+        </div>
+
+        {isModalOpen && (
+          <Modal onClose={() => setIsModalOpen(false)}>
+            <ExpenseForm 
+              initialData={editingExpense} 
+              onSuccess={() => { setIsModalOpen(false); fetchExpenses(); }} 
+            />
+          </Modal>
+        )}
+      </div>
     </div>
   );
 }

@@ -29,23 +29,34 @@ export default function StaffPage() {
   }, []);
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
-        <p className="text-gray-500">Manage your factory staff, roles, and security access.</p>
-      </div>
-      
-      {/* Form to add new staff */}
-      <AddStaffForm onSuccess={fetchStaff} />
-
-      {/* Staff listing table */}
-      {loading ? (
-        <div className="flex justify-center p-10">
-          <p className="text-gray-500">Loading staff directory...</p>
+    // Mobile-first padding and centered container for desktop
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        
+        {/* Header Section */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
+          <p className="text-gray-500">Manage your factory staff, roles, and security access.</p>
         </div>
-      ) : (
-        <StaffTable staff={staff} onUpdate={fetchStaff} />
-      )}
+        
+        {/* Form to add new staff */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <AddStaffForm onSuccess={fetchStaff} />
+        </div>
+
+        {/* Staff listing table */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {loading ? (
+            <div className="flex justify-center p-10">
+              <p className="text-gray-500 animate-pulse">Loading staff directory...</p>
+            </div>
+          ) : (
+            <div className="w-full overflow-x-auto">
+              <StaffTable staff={staff} onUpdate={fetchStaff} />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

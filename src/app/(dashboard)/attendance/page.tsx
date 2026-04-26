@@ -21,7 +21,6 @@ export default function AttendancePage() {
 
   const isAdmin = user?.role === 'superadmin' || user?.role === 'owner';
 
-  // FIX: Case-insensitive status matching to match your database values ('Present', 'Absent', 'Late')
   const getCountByStatus = (status: string) => 
     attendance.filter(a => a.status?.toLowerCase() === status.toLowerCase()).length;
 
@@ -56,47 +55,52 @@ export default function AttendancePage() {
   if (loading) return <Loading />;
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <ModuleSummaryHeader 
-        title="Attendance Records" 
-        isAdmin={isAdmin}
-        stats={[
-          { label: "Present", value: getCountByStatus('Present') },
-          { label: "Absent", value: getCountByStatus('Absent') },
-          { label: "Late", value: getCountByStatus('Late') }
-        ]}
-        filterComponent={isAdmin ? <DateFilters range={range} onChange={setRange} /> : null}
-      />
+    // Mobile-first padding and centered container for desktop
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        
+        <ModuleSummaryHeader 
+          title="Attendance Records" 
+          isAdmin={isAdmin}
+          stats={[
+            { label: "Present", value: getCountByStatus('Present') },
+            { label: "Absent", value: getCountByStatus('Absent') },
+            { label: "Late", value: getCountByStatus('Late') }
+          ]}
+          filterComponent={isAdmin ? <DateFilters range={range} onChange={setRange} /> : null}
+        />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h3 className="font-bold text-gray-700">Daily Logs</h3>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-600 transition shadow-md hover:shadow-lg"
-          >
-            + Log Attendance
-          </button>
-        </div>
-
-        {fetchError && (
-          <div className="bg-red-50 text-red-600 p-4 m-6 rounded-lg border border-red-200">
-            Error: {fetchError}.
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Header section with responsive stacking */}
+          <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="font-bold text-gray-700">Daily Logs</h3>
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="w-full sm:w-auto bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-600 transition shadow-md hover:shadow-lg"
+            >
+              + Log Attendance
+            </button>
           </div>
-        )}
 
-        <div className="overflow-x-auto">
-          <AttendanceTable attendance={attendance} />
+          {fetchError && (
+            <div className="bg-red-50 text-red-600 p-4 m-4 rounded-lg border border-red-200 text-sm">
+              Error: {fetchError}.
+            </div>
+          )}
+
+          <div className="overflow-x-auto w-full">
+            <AttendanceTable attendance={attendance} />
+          </div>
         </div>
-      </div>
 
-      {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
-          <AttendanceForm 
-            onSuccess={() => { setIsModalOpen(false); fetchData(); }} 
-          />
-        </Modal>
-      )}
+        {isModalOpen && (
+          <Modal onClose={() => setIsModalOpen(false)}>
+            <AttendanceForm 
+              onSuccess={() => { setIsModalOpen(false); fetchData(); }} 
+            />
+          </Modal>
+        )}
+      </div>
     </div>
-  );
+  ); 
 }

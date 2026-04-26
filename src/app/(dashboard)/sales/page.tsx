@@ -19,10 +19,7 @@ export default function SalesPage() {
   
   const { range, setRange, startDate, endDate } = useTableFilters();
 
-  // Define admin status
   const isAdmin = user?.role === 'superadmin' || user?.role === 'owner';
-
-  // Calculate totals dynamically
   const totalSalesAmount = sales.reduce((sum, sale) => sum + (Number(sale.total) || 0), 0);
 
   useEffect(() => {
@@ -32,8 +29,6 @@ export default function SalesPage() {
   const fetchSales = async () => {
     try {
       setLoading(true);
-
-      // Force dates to Today for non-admin staff
       let finalStart = startDate;
       let finalEnd = endDate;
 
@@ -70,48 +65,50 @@ export default function SalesPage() {
   if (loading) return <Loading />;
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Modern Header Section */}
-      <ModuleSummaryHeader 
-        title="Sales Records" 
-        isAdmin={isAdmin}
-        stats={[
-          { label: "Total Sales", value: `${totalSalesAmount.toLocaleString()} Birr` },
-          { label: "Orders", value: sales.length }
-        ]}
-        // Hide filter dropdown for staff so they aren't confused by disabled data
-        filterComponent={isAdmin ? <DateFilters range={range} onChange={setRange} /> : null}
-      />
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Modern Header Section */}
+        <ModuleSummaryHeader 
+          title="Sales Records" 
+          isAdmin={isAdmin}
+          stats={[
+            { label: "Total Sales", value: `${totalSalesAmount.toLocaleString()} Birr` },
+            { label: "Orders", value: sales.length }
+          ]}
+          filterComponent={isAdmin ? <DateFilters range={range} onChange={setRange} /> : null}
+        />
 
-      {/* Main Table Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h3 className="font-bold text-gray-700">Recent Sales</h3>
-          <button 
-            onClick={handleAdd}
-            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md hover:shadow-lg"
-          >
-            + Add Sale
-          </button>
+        {/* Main Table Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="font-bold text-gray-700">Recent Sales</h3>
+            <button 
+              onClick={handleAdd}
+              className="w-full sm:w-auto bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md hover:shadow-lg"
+            >
+              + Add Sale
+            </button>
+          </div>
+
+          <div className="overflow-x-auto w-full">
+            <SalesTable 
+              sales={sales} 
+              onEdit={handleEdit} 
+              canEdit={canEdit} 
+            />
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <SalesTable 
-            sales={sales} 
-            onEdit={handleEdit} 
-            canEdit={canEdit} 
-          />
-        </div>
+        {isModalOpen && (
+          <Modal onClose={() => setIsModalOpen(false)}>
+            <SalesForm 
+              initialData={editingSale} 
+              onSuccess={() => { setIsModalOpen(false); fetchSales(); }} 
+            />
+          </Modal>
+        )}
       </div>
-
-      {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
-          <SalesForm 
-            initialData={editingSale} 
-            onSuccess={() => { setIsModalOpen(false); fetchSales(); }} 
-          />
-        </Modal>
-      )}
     </div>
   );
 }

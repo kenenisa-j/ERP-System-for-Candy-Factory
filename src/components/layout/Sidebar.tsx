@@ -9,29 +9,31 @@ export default function Sidebar() {
   // Helper to check for admin/owner role
   const isAdmin = user?.role === "superadmin" || user?.role === "owner";
 
-  if (loading) return <div style={{ width: "200px", background: "#eee", padding: "20px" }}>Loading...</div>;
+  if (loading) return <div className="w-64 bg-gray-100 p-6 h-full">Loading...</div>;
 
   return (
-    <div style={{ width: "200px", background: "#eee", padding: "20px" }}>
-      <h3>ERP</h3>
+    // 'hidden' on mobile (by default), 'flex' on large screens (lg:)
+    // 'fixed' ensures it sits on top of content for mobile toggle
+    <div className="hidden lg:flex flex-col w-64 bg-gray-100 p-6 h-screen fixed top-0 left-0">
+      <h3 className="font-bold text-lg mb-6">ERP</h3>
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <nav className="flex flex-col gap-4">
         
         {/* Intelligence Center: Admin Only */}
-        {isAdmin && <Link href="/dashboard">Intelligence Center</Link>}
+        {isAdmin && <Link href="/dashboard" className="text-gray-700 hover:text-black">Intelligence Center</Link>}
 
         {/* Operational: All logged-in users */}
-        <Link href="/expenses">Expenses</Link>
-        <Link href="/sales">Sales</Link>
-        <Link href="/production">Production</Link>
-        <Link href="/attendance">Attendance</Link>
+        <Link href="/expenses" className="text-gray-700 hover:text-black">Expenses</Link>
+        <Link href="/sales" className="text-gray-700 hover:text-black">Sales</Link>
+        <Link href="/production" className="text-gray-700 hover:text-black">Production</Link>
+        <Link href="/attendance" className="text-gray-700 hover:text-black">Attendance</Link>
 
         {/* Management Links: Admin Only */}
         {isAdmin && (
           <>
-            <Link href="/payroll">Payroll</Link>
-            <Link href="/staff">Staff</Link>
-            <Link href="/workers">Workers</Link>
+            <Link href="/payroll" className="text-gray-700 hover:text-black">Payroll</Link>
+            <Link href="/staff" className="text-gray-700 hover:text-black">Staff</Link>
+            <Link href="/workers" className="text-gray-700 hover:text-black">Workers</Link>
           </>
         )}
       </nav>

@@ -1,3 +1,5 @@
+'use client';
+
 import SummaryCard from './SummaryCard';
 
 interface DashboardCardsProps {
@@ -15,7 +17,7 @@ interface DashboardCardsProps {
 
 export default function DashboardCards({ data }: DashboardCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
       {/* Revenue Card */}
       <SummaryCard 
         title="Total Revenue" 
@@ -34,7 +36,7 @@ export default function DashboardCards({ data }: DashboardCardsProps) {
         trend={data.trends.expenses} 
       />
 
-      {/* Net Profit Card - Net Profit doesn't strictly need a trend unless you compute it */}
+      {/* Net Profit Card */}
       <SummaryCard 
         title="Net Profit" 
         value={data.netProfit.toLocaleString()} 

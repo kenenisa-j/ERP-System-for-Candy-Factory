@@ -10,7 +10,10 @@ const getActivityStyle = (action: string) => {
   return { color: 'bg-gray-400', icon: '📝' };
 };
 
-export default function ActivityStream({ logs }: { logs: any[] }) {
+export default function ActivityStream({ logs = [] }: { logs: any[] }) {
+  // Defensive check: if logs is null/undefined, default to empty array
+  const safeLogs = Array.isArray(logs) ? logs : [];
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex justify-between items-center mb-6">
@@ -19,9 +22,19 @@ export default function ActivityStream({ logs }: { logs: any[] }) {
       </div>
       
       <div className="space-y-6">
-        {logs.length > 0 ? (
-          logs.map((log) => {
+        {safeLogs.length > 0 ? (
+          safeLogs.map((log) => {
             const style = getActivityStyle(log.action_description || '');
+            
+            // Safe date formatting
+            const dateObj = log.created_at ? new Date(log.created_at) : new Date();
+            const dateString = isNaN(dateObj.getTime()) ? 'Invalid Date' : dateObj.toLocaleString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              hour: 'numeric', 
+              minute: 'numeric' 
+            });
+
             return (
               <div key={log.id} className="flex gap-4 group">
                 <div className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full ${style.color} flex items-center justify-center text-xs text-white shadow-sm`}>
@@ -32,19 +45,14 @@ export default function ActivityStream({ logs }: { logs: any[] }) {
                     {log.action_description || 'Activity performed'}
                   </p>
                   <p className="text-gray-400 text-[10px] mt-1 font-medium uppercase">
-                    {new Date(log.created_at).toLocaleString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      hour: 'numeric', 
-                      minute: 'numeric' 
-                    })}
+                    {dateString}
                   </p>
                 </div>
               </div>
             );
           })
         ) : (
-          <p className="text-gray-400 text-sm italic">No recent activity logs found.</p>
+          <p className="text-gray-400 text-sm italic">No recent activity logs found for this period.</p>
         )}
       </div>
     </div>

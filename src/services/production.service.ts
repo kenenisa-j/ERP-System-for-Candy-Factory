@@ -6,7 +6,7 @@ export const productionService = {
    * If isAdmin is false, it forces a filter on created_by.
    */
   async getAll(startDate?: string, endDate?: string, userId?: string, isAdmin?: boolean) {
-    console.log("Fetching with:", { isAdmin, userId }); // Debug: check what is actually being passed
+    console.log("Fetching with filters:", { isAdmin, userId, startDate, endDate });
 
     let query = supabase
       .from('production')
@@ -14,14 +14,19 @@ export const productionService = {
       .order('date', { ascending: false });
 
     // Enforce business logic: Staff ONLY see their own records
-    // We check !isAdmin explicitly.
     if (isAdmin !== true && userId) {
       console.log("Applying staff filter for:", userId);
       query = query.eq('created_by', userId);
     }
 
+    // Apply date filtering
+    // We split the date string to ensure we only compare YYYY-MM-DD
     if (startDate && endDate) {
-      query = query.gte('date', startDate).lte('date', endDate);
+      const sanitizedStart = startDate.split(' ')[0];
+      const sanitizedEnd = endDate.split(' ')[0];
+      
+      console.log("Applying DB Filter with dates:", { sanitizedStart, sanitizedEnd });
+      query = query.gte('date', sanitizedStart).lte('date', sanitizedEnd);
     }
 
     const { data: production, error: prodError } = await query;
@@ -29,6 +34,7 @@ export const productionService = {
     if (prodError) throw prodError;
     if (!production || production.length === 0) return [];
 
+    // Fetch related profile names
     const userIds = [...new Set([
       ...production.map(p => p.created_by),
       ...production.map(p => p.updated_by)
