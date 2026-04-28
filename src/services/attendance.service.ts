@@ -2,10 +2,12 @@ import { supabase } from '@/lib/supabaseClient';
 
 export const attendanceService = {
   /**
-   * Fetches attendance records within a date range.
+   * Fetches attendance records with explicitly linked foreign keys.
    */
-  async getAll(startDate?: string, endDate?: string) {
-    // Explicitly using the relationship names to resolve the ambiguity error (PGRST201)
+  async getAll(startDate?: string, endDate?: string, userId?: string, isAdmin?: boolean) {
+    // We use the !inner join syntax to discard records at the DATABASE level.
+    // By adding .eq('workers.is_active', true), we ensure that only records 
+    // linked to active workers are retrieved.
     let query = supabase
       .from('attendance')
       .select(`
@@ -14,23 +16,31 @@ export const attendanceService = {
         date,
         recorded_by,
         worker_id,
-        workers!fk_attendance_worker(full_name),
-        profiles!fk_attendance_recorded_by(full_name)
+        workers:fk_attendance_worker!inner(full_name, is_active),
+        profiles:fk_attendance_recorded_by(full_name)
       `)
+      .eq('workers.is_active', true) 
       .order('date', { ascending: false });
 
-    // Apply date range filters to the 'date' column
+    if (!isAdmin && userId) {
+      query = query.eq('recorded_by', userId);
+    }
+
     if (startDate && endDate) {
       query = query.gte('date', startDate).lte('date', endDate);
     }
     
     const { data, error } = await query;
     
-    if (error) {
-      console.error("Attendance Service (getAll) Error:", error);
-      throw error;
-    }
-    return data || [];
+    if (error) throw error;
+
+    // Since !inner + .eq filters out inactive records, 
+    // we can now safely map the data without needing complex filters.
+    return (data || []).map(record => ({
+      ...record,
+      worker_name: record.workers ? (record.workers as any).full_name : 'Unknown Worker',
+      recorded_by_name: record.profiles ? (record.profiles as any).full_name : 'System'
+    }));
   },
 
   /**
@@ -47,10 +57,7 @@ export const attendanceService = {
       }])
       .select();
       
-    if (error) {
-      console.error("Attendance Service (create) Error:", error);
-      throw error;
-    }
+    if (error) throw error;
     return result;
   },
 
@@ -64,10 +71,7 @@ export const attendanceService = {
       .eq('id', id)
       .select();
       
-    if (error) {
-      console.error("Attendance Service (update) Error:", error);
-      throw error;
-    }
+    if (error) throw error;
     return result;
   }
 };

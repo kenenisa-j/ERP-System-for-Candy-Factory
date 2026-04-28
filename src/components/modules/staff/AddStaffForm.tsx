@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { createStaffAction } from '@/app/actions/staff';
+import { logActivity } from '@/lib/logger'; // Import the logger helper
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
@@ -20,6 +21,13 @@ export default function AddStaffForm({ onSuccess }: { onSuccess: () => void }) {
     if (result.error) {
       setError(result.error);
     } else {
+      // Updated: Use the centralized logActivity helper
+      await logActivity(
+        'Added',
+        'Staff',
+        formData.full_name
+      );
+
       onSuccess();
       setFormData({ email: '', password: '', full_name: '' });
     }

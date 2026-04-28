@@ -16,8 +16,9 @@ export interface ExpenseRecord {
   created_by: string;
 }
 
+// Updated: This will now represent the aggregated/summary production data
 export interface ProductionRecord {
-  product_name: string;
+  productName: string;
   quantity: number;
   date: string;
 }
@@ -29,11 +30,12 @@ export interface PayrollRecord {
   paid_at: string | null;
 }
 
+// Updated: This now represents the summary (aggregates) per worker
 export interface AttendanceRecord {
-  worker_name: string;
-  present: number;
-  absent: number;
-  late: number;
+  workerName: string;
+  Present: number;
+  Absent: number;
+  Late: number;
 }
 
 // 2. The Main Report Structure (The "Blueprint" for the PDF)

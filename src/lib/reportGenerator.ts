@@ -14,7 +14,6 @@ const generateTable = (doc: jsPDF, options: UserOptions): number => {
   return typeof finalY === 'number' ? finalY : 25;
 };
 
-// Colorful Summary Card Helper
 const drawSummaryCard = (doc: jsPDF, y: number, title: string, items: { label: string; val: string }[], color: [number, number, number]) => {
   doc.setFillColor(color[0], color[1], color[2]);
   doc.rect(14, y, 182, 18, 'F');
@@ -29,19 +28,6 @@ const drawSummaryCard = (doc: jsPDF, y: number, title: string, items: { label: s
   doc.setTextColor(0);
 };
 
-const drawSummaryBox = (doc: jsPDF, y: number, label: string, value: string) => {
-  doc.setDrawColor(52, 73, 94);
-  doc.rect(14, y, 182, 10);
-  doc.setFontSize(10);
-  doc.setTextColor(52, 73, 94);
-  doc.text(label, 20, y + 7);
-  doc.text(value, 150, y + 7);
-  doc.setTextColor(0);
-};
-
-// src/lib/reportGenerator.ts
-// ... (keep imports and helper functions as they are)
-
 export const generateMonthlyReport = (data: MonthlyReportData, monthName: string, year: number) => {
   const doc = new jsPDF();
   const formatCurrency = (val: number) => (val || 0).toLocaleString('en-ET', { style: 'currency', currency: 'ETB' });
@@ -55,15 +41,13 @@ export const generateMonthlyReport = (data: MonthlyReportData, monthName: string
   doc.setFontSize(14);
   doc.text(`${monthName.toUpperCase()} ${year}`, 14, 35);
   
-  // 1. EXECUTIVE SUMMARY (Updated to be colorful and consistent)
+  // 1. EXECUTIVE SUMMARY
   doc.setTextColor(0);
   doc.setFontSize(16);
   doc.text('1. EXECUTIVE SUMMARY', 14, 50);
-  
   const execY = generateTable(doc, {
     startY: 55,
     head: [['Metric', 'Amount']],
-    // Now colorful, matching your other tables
     headStyles: { fillColor: [39, 174, 96], textColor: [255, 255, 255] },
     body: [
       ['Total Sales', formatCurrency(data.summary.totalSales)],
@@ -72,60 +56,77 @@ export const generateMonthlyReport = (data: MonthlyReportData, monthName: string
       ['Net Profit', formatCurrency(data.summary.netProfit)],
     ]
   });
-  
-  // Highlighting the Net Profit box below
   drawSummaryCard(doc, execY + 5, 'NET PROFIT FOR MONTH', [
     { label: 'Result', val: formatCurrency(data.summary.netProfit) }
   ], [39, 174, 96]);
 
-  // ... (Rest of your sections 2-6 remain exactly as before)
   // 2. SALES
   doc.addPage();
   doc.text('2. SALES REPORT', 14, 20);
-  const salesY = generateTable(doc, { startY: 25, head: [['Customer', 'Qty', 'Amount', 'Date']], body: data.sales.map(s => [s.customer_name, s.quantity, formatCurrency(s.total), s.date]) });
+  const salesY = generateTable(doc, { 
+    startY: 25, 
+    head: [['Customer', 'Qty', 'Amount', 'Date']], 
+    body: data.sales.map(s => [s.customer_name, s.quantity, formatCurrency(s.total), s.date]) 
+  });
   drawSummaryCard(doc, salesY + 5, 'SALES SUMMARY', [
     { label: 'Orders', val: data.sales.length.toString() },
     { label: 'Total Qty', val: data.summary.totalProductionUnits.toString() },
     { label: 'Total Sales', val: formatCurrency(data.summary.totalSales) }
-  ], [41, 128, 185]); // Blue
+  ], [41, 128, 185]);
 
   // 3. EXPENSES
   doc.addPage();
   doc.text('3. EXPENSE REPORT', 14, 20);
-  const expY = generateTable(doc, { startY: 25, head: [['Note', 'Category', 'Amount', 'Date']], body: data.expenses.map(e => [e.note, e.category, formatCurrency(e.amount), e.date]) });
+  const expY = generateTable(doc, { 
+    startY: 25, 
+    head: [['Note', 'Category', 'Amount', 'Date']], 
+    body: data.expenses.map(e => [e.note, e.category, formatCurrency(e.amount), e.date]) 
+  });
   drawSummaryCard(doc, expY + 5, 'EXPENSE SUMMARY', [
     { label: 'Records', val: data.expenses.length.toString() },
     { label: 'Total', val: formatCurrency(data.summary.totalExpenses) }
-  ], [192, 57, 43]); // Red
+  ], [192, 57, 43]);
 
-  // 4. PRODUCTION
+  // 4. PRODUCTION (Updated to match aggregated type)
   doc.addPage();
   doc.text('4. PRODUCTION REPORT', 14, 20);
-  const prodY = generateTable(doc, { startY: 25, head: [['Product', 'Quantity', 'Date']], body: data.production.map(p => [p.product_name, p.quantity, p.date]) });
+  const prodY = generateTable(doc, { 
+    startY: 25, 
+    head: [['Product', 'Quantity', 'Date']], 
+    body: data.production.map(p => [p.productName, p.quantity, p.date]) 
+  });
   drawSummaryCard(doc, prodY + 5, 'PRODUCTION SUMMARY', [
-    { label: 'Entries', val: data.summary.totalProductionRecords.toString() },
+    { label: 'Entries', val: data.production.length.toString() },
     { label: 'Units', val: data.summary.totalProductionUnits.toString() }
-  ], [243, 156, 18]); // Orange
+  ], [243, 156, 18]);
 
   // 5. PAYROLL
   doc.addPage();
   doc.text('5. PAYROLL REPORT', 14, 20);
-  const payY = generateTable(doc, { startY: 25, head: [['Worker', 'Net Pay', 'Status', 'Paid At']], body: data.payroll.map(p => [p.worker_name, formatCurrency(p.net_pay), p.status, p.paid_at || '-']) });
+  const payY = generateTable(doc, { 
+    startY: 25, 
+    head: [['Worker', 'Net Pay', 'Status', 'Paid At']], 
+    body: data.payroll.map(p => [p.worker_name, formatCurrency(p.net_pay), p.status, p.paid_at || '-']) 
+  });
   drawSummaryCard(doc, payY + 5, 'PAYROLL SUMMARY', [
     { label: 'Paid', val: data.payroll.filter(p => p.status === 'paid').length.toString() },
     { label: 'Pending', val: data.payroll.filter(p => p.status === 'pending').length.toString() },
     { label: 'Total', val: formatCurrency(data.summary.totalPayroll) }
-  ], [142, 68, 173]); // Purple
+  ], [142, 68, 173]);
 
-  // 6. ATTENDANCE
+  // 6. ATTENDANCE (Updated to match aggregated type)
   doc.addPage();
   doc.text('6. ATTENDANCE SUMMARY', 14, 20);
-  const attY = generateTable(doc, { startY: 25, head: [['Worker', 'Present', 'Absent', 'Late']], body: data.attendance.map(a => [a.worker_name, a.present, a.absent, a.late]) });
+  const attY = generateTable(doc, { 
+    startY: 25, 
+    head: [['Worker', 'Present', 'Absent', 'Late']], 
+    body: data.attendance.map(a => [a.workerName, a.Present, a.Absent, a.Late]) 
+  });
   drawSummaryCard(doc, attY + 5, 'ATTENDANCE SUMMARY', [
-    { label: 'Present', val: data.attendance.reduce((sum, a) => sum + a.present, 0).toString() },
-    { label: 'Absent', val: data.attendance.reduce((sum, a) => sum + a.absent, 0).toString() },
-    { label: 'Late', val: data.attendance.reduce((sum, a) => sum + a.late, 0).toString() }
-  ], [39, 174, 96]); // Green
+    { label: 'Present', val: data.attendance.reduce((sum, a) => sum + a.Present, 0).toString() },
+    { label: 'Absent', val: data.attendance.reduce((sum, a) => sum + a.Absent, 0).toString() },
+    { label: 'Late', val: data.attendance.reduce((sum, a) => sum + a.Late, 0).toString() }
+  ], [39, 174, 96]);
 
   doc.save(`Candy-Factory-${monthName}-${year}-Report.pdf`);
 };

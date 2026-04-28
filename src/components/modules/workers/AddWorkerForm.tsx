@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { workersService } from '@/services/workers.service';
+import { logActivity } from '@/lib/logger'; // Import the logger helper
 
 export default function AddWorkerForm({ initialData, onSuccess }: any) {
   const [formData, setFormData] = useState(initialData || { 
@@ -19,6 +20,14 @@ export default function AddWorkerForm({ initialData, onSuccess }: any) {
       } else {
         await workersService.create(formData);
       }
+
+      // Updated: Use the centralized logActivity helper
+      await logActivity(
+        initialData ? 'Updated' : 'Added',
+        'Workers',
+        formData.full_name
+      );
+
       onSuccess();
     } catch (error) {
       console.error("Failed to save worker:", error);

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { productionService } from '@/services/production.service';
 import { useAuth } from '@/hooks/useAuth';
+import { logActivity } from '@/lib/logger'; // Import the logger helper
 
 export default function ProductionForm({ onSuccess, initialData }: { onSuccess: () => void, initialData?: any }) {
   const { user } = useAuth();
@@ -10,14 +11,14 @@ export default function ProductionForm({ onSuccess, initialData }: { onSuccess: 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null); // Reset error state on attempt
+    setError(null); 
     
     if (!user?.id) return;
 
     const formData = new FormData(e.currentTarget);
     const quantity = Number(formData.get('quantity'));
+    const productName = formData.get('product_name') as string;
     
-    // VALIDATION: Strict check for negative or zero
     if (quantity <= 0) {
       setError("Quantity must be greater than 0");
       return;
@@ -26,7 +27,7 @@ export default function ProductionForm({ onSuccess, initialData }: { onSuccess: 
     setLoading(true);
 
     const payload = {
-      product_name: formData.get('product_name'),
+      product_name: productName,
       quantity,
       date: formData.get('date'),
     };
@@ -37,6 +38,14 @@ export default function ProductionForm({ onSuccess, initialData }: { onSuccess: 
       } else {
         await productionService.create(payload, user.id);
       }
+
+      // Updated: Use the centralized logActivity helper
+      await logActivity(
+        initialData?.id ? 'Updated' : 'Logged',
+        'Production',
+        productName
+      );
+
       onSuccess();
     } catch (err: any) {
       console.error("Submission error:", err);
@@ -52,7 +61,6 @@ export default function ProductionForm({ onSuccess, initialData }: { onSuccess: 
         {initialData ? "Edit Production" : "Log Production"}
       </h2>
 
-      {/* ERROR DISPLAY AREA - Appears exactly where you circled */}
       {error && (
         <div className="w-full p-3 text-sm text-red-700 bg-red-100 rounded border border-red-200 animate-in fade-in">
           {error}

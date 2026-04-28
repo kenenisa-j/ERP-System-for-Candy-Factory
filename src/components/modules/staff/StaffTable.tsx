@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { staffService } from '@/services/staff.service';
 import EditStaffModal from './EditStaffModal';
 
 // Define the shape of your staff member for better type safety
@@ -14,6 +13,12 @@ interface StaffMember {
 
 export default function StaffTable({ staff, onUpdate }: { staff: StaffMember[]; onUpdate: () => void }) {
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
+
+  // Wrapper to handle the update and close the modal cleanly
+  const handleUpdate = () => {
+    onUpdate();
+    setEditingStaff(null);
+  };
 
   return (
     <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
@@ -54,7 +59,7 @@ export default function StaffTable({ staff, onUpdate }: { staff: StaffMember[]; 
         <EditStaffModal 
           staff={editingStaff} 
           onClose={() => setEditingStaff(null)} 
-          onUpdate={onUpdate} 
+          onUpdate={handleUpdate} 
         />
       )}
     </div>

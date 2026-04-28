@@ -4,31 +4,43 @@ import { supabase } from '@/lib/supabaseClient';
 import { expensesService } from '@/services/expenses.service';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
+import { logActivity } from '@/lib/logger'; 
 
 export default function ExpenseForm({ onSuccess, initialData }: { onSuccess: () => void, initialData?: any }) {
   const { showToast } = useToast();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    
+    // Safety check: Ensure user is logged in before allowing submission
+    if (!user) {
+      setError("You must be logged in to log an expense.");
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const amount = parseFloat(formData.get('amount') as string);
     const category = formData.get('category') as string;
     const file = formData.get('receipt') as File;
+    const description = formData.get('description') as string;
+    const date = formData.get('date') as string;
 
-    if (amount <= 0) {
-      showToast("Amount must be greater than 0", "error");
+    if (amount <= 0 || isNaN(amount)) {
+      setError("Amount must be greater than 0");
       setLoading(false);
       return;
     }
 
     try {
-      let receiptUrl = initialData?.receipt_url || null; // Keep old URL if editing
+      let receiptUrl = initialData?.receipt_url || null; 
 
-      // 1. Handle File Upload if a new file is provided
+      // Handle file upload if a new file is provided
       if (file && file.size > 0) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}_${Math.random()}.${fileExt}`;
@@ -37,7 +49,7 @@ export default function ExpenseForm({ onSuccess, initialData }: { onSuccess: () 
           .from('receipts')
           .upload(fileName, file);
 
-        if (uploadError) throw new Error("Failed to upload receipt file.");
+        if (uploadError) throw new Error("Failed to upload receipt file: " + uploadError.message);
 
         const { data: urlData } = supabase.storage
           .from('receipts')
@@ -46,37 +58,51 @@ export default function ExpenseForm({ onSuccess, initialData }: { onSuccess: () 
         receiptUrl = urlData.publicUrl;
       }
 
+      // Explicitly set created_by to user.id. 
+      // Do not fallback to initialData?.created_by for new records.
       const expenseData = {
-        description: formData.get('description') as string,
+        description,
         amount,
         category,
-        date: formData.get('date') as string,
-        created_by: user?.id || initialData?.created_by,
+        date,
+        created_by: user.id, 
         receipt_url: receiptUrl 
       };
 
       if (initialData) {
-        // UPDATED: Now passing user?.id as the third argument to the service
-        await expensesService.update(initialData.id, expenseData, user?.id);
+        await expensesService.update(initialData.id, expenseData, user.id);
         showToast("Expense updated successfully", "success");
       } else {
         await expensesService.create(expenseData);
         showToast("Expense saved successfully", "success");
       }
+
+      await logActivity(
+        initialData ? 'Updated' : 'Added',
+        'Expenses',
+        description
+      );
+
       onSuccess();
     } catch (error: any) {
       console.error("Submission error:", error);
-      showToast(error.message || "Failed to save expense", "error");
+      setError(error.message || "Failed to save expense");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-2 text-gray-800">
+    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 text-gray-800">
       <h2 className="text-xl font-bold mb-4 text-blue-900 border-b pb-2">
         {initialData ? "Edit Expense" : "Log New Expense"}
       </h2>
+
+      {error && (
+        <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded">
+          {error}
+        </div>
+      )}
       
       <div>
         <label className="block text-sm font-medium mb-1 text-gray-700">Expense Name / Item</label>
@@ -95,7 +121,7 @@ export default function ExpenseForm({ onSuccess, initialData }: { onSuccess: () 
         </div>
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">Amount (Birr)</label>
-          <input name="amount" type="number" defaultValue={initialData?.amount} step="0.01" required className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-900 outline-none" />
+          <input name="amount" type="number" placeholder="0" defaultValue={initialData?.amount} step="0.01" required className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-900 outline-none" />
         </div>
       </div>
 

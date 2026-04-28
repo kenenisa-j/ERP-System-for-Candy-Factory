@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { salesService } from '@/services/sales.service';
 import SalesForm from '@/components/modules/sales/SalesForm';
 import SalesTable from '@/components/modules/sales/SalesTable';
@@ -11,22 +12,24 @@ import DateFilters from '../../../components/shared/DateFilter';
 import ModuleSummaryHeader from '@/components/shared/ModuleSummaryHeader';
 
 export default function SalesPage() {
+  const router = useRouter();
+  
+  // 1. ALL HOOKS CALLED UNCONDITIONALLY
   const [sales, setSales] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
   
+  const { user, loading: authLoading } = useAuth();
   const { range, setRange, startDate, endDate } = useTableFilters();
 
+  // 2. LOGIC
   const isAdmin = user?.role === 'superadmin' || user?.role === 'owner';
-  const totalSalesAmount = sales.reduce((sum, sale) => sum + (Number(sale.total) || 0), 0);
-
-  useEffect(() => {
-    fetchSales();
-  }, [range, isAdmin]);
+  const isAccountDisabled = user && user.is_active === false && !isAdmin;
 
   const fetchSales = async () => {
+    if (!user || isAccountDisabled) return;
+    
     try {
       setLoading(true);
       let finalStart = startDate;
@@ -47,28 +50,57 @@ export default function SalesPage() {
     }
   };
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      // Redirect unauthorized roles
+      if (user.role !== 'owner' && user.role !== 'superadmin' && user.role !== 'staff') {
+        router.push('/unauthorized');
+        return;
+      }
+      fetchSales();
+    } else if (!authLoading) {
+      setLoading(false);
+    }
+  }, [range, isAdmin, user, authLoading, router]);
+
   const canEdit = (sale: any) => {
     if (!user) return false;
     return user.role === 'superadmin' || sale.created_by === user.id;
   };
 
   const handleEdit = (sale: any) => {
+    if (isAccountDisabled) return alert("Account disabled.");
     setEditingSale(sale);
     setIsModalOpen(true);
   };
 
   const handleAdd = () => {
+    if (isAccountDisabled) return alert("Account disabled.");
     setEditingSale(null);
     setIsModalOpen(true);
   };
 
-  if (loading) return <Loading />;
+  // 3. RENDER LOGIC
+  if (authLoading || (loading && sales.length === 0 && !isAccountDisabled)) return <Loading />;
+
+  if (isAccountDisabled) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-red-100 text-center max-w-md w-full">
+          <div className="text-4xl mb-4">🚫</div>
+          <h2 className="text-xl font-bold text-gray-900">Account Disabled</h2>
+          <p className="text-gray-500 mt-2">Your account is currently disabled. Please contact your administrator to regain access.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalSalesAmount = sales.reduce((sum, sale) => sum + (Number(sale.total) || 0), 0);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Modern Header Section */}
         <ModuleSummaryHeader 
           title="Sales Records" 
           isAdmin={isAdmin}
@@ -79,7 +111,6 @@ export default function SalesPage() {
           filterComponent={isAdmin ? <DateFilters range={range} onChange={setRange} /> : null}
         />
 
-        {/* Main Table Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="font-bold text-gray-700">Recent Sales</h3>

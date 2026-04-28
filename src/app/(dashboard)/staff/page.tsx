@@ -1,20 +1,35 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/hooks/useAuth';
 import StaffTable from '@/components/modules/staff/StaffTable';
 import AddStaffForm from '@/components/modules/staff/AddStaffForm';
 
 export default function StaffPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [staff, setStaff] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Security Gatekeeper: Ensure only owners/superadmins access this page
+  useEffect(() => {
+    if (user && user.role !== 'owner' && user.role !== 'superadmin') {
+      router.push('/unauthorized');
+    }
+  }, [user, router]);
+
   const fetchStaff = async () => {
-    setLoading(true);
-    // Fetch profiles excluding your superadmin account
+    // Only show loading spinner on initial load, 
+    // otherwise let the UI stay interactive during updates
+    const isInitialLoad = staff.length === 0;
+    if (isInitialLoad) setLoading(true);
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .neq('role', 'superadmin');
+      .neq('role', 'superadmin')
+      .order('full_name', { ascending: true });
     
     if (error) {
       console.error("Error fetching staff:", error);
@@ -29,7 +44,6 @@ export default function StaffPage() {
   }, []);
 
   return (
-    // Mobile-first padding and centered container for desktop
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
@@ -46,7 +60,7 @@ export default function StaffPage() {
 
         {/* Staff listing table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {loading ? (
+          {loading && staff.length === 0 ? (
             <div className="flex justify-center p-10">
               <p className="text-gray-500 animate-pulse">Loading staff directory...</p>
             </div>

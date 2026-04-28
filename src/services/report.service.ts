@@ -1,20 +1,27 @@
 // src/services/report.service.ts
 import { supabase } from '@/lib/supabaseClient';
-import { MonthlyReportData } from '@/types/report.types';
-import { calculateNetProfit, sumByField } from '@/utils/reportCalculations';
+import { 
+  MonthlyReportData, 
+  ProductionRecord, 
+  AttendanceRecord 
+} from '@/types/report.types';
+import { 
+  calculateNetProfit, 
+  sumByField, 
+  aggregateAttendance, 
+  aggregateProduction 
+} from '@/utils/reportCalculations';
 
 export const reportService = {
   async getMonthlyReport(month: number, year: number): Promise<MonthlyReportData> {
     // 1. Calculate precise date range
     const startOfMonth = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     
-    // Calculate the 1st of the next month to ensure proper 'less than' filtering
     const nextMonth = month + 1 >= 12 ? 0 : month + 1;
     const nextYear = month + 1 >= 12 ? year + 1 : year;
     const firstOfNextMonth = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-01`;
 
-    // 2. Fetch data (Corrected to use 'date' column for all)
-    // Note: 'payroll' uses 'month' column, which is stored as YYYY-MM-DD (1st of month)
+    // 2. Fetch data
     const [sales, expenses, production, payroll, attendance] = await Promise.all([
       supabase.from('sales').select('*').gte('date', startOfMonth).lt('date', firstOfNextMonth),
       supabase.from('expenses').select('*').gte('date', startOfMonth).lt('date', firstOfNextMonth),
@@ -33,12 +40,15 @@ export const reportService = {
     const totalSales = sumByField(salesData, 'total');
     const totalExpenses = sumByField(expensesData, 'amount');
     
-    // Payroll: Only sum 'paid' entries for the report
     const totalPayroll = payrollData
       .filter((p: any) => p.status === 'paid')
       .reduce((sum, r) => sum + (Number(r.net_pay || 0)), 0);
     
     const totalProductionUnits = sumByField(productionData, 'quantity');
+
+    // Aggregate Data and explicitly cast to the expected Types
+    const aggregatedProduction = aggregateProduction(productionData) as ProductionRecord[];
+    const aggregatedAttendance = aggregateAttendance(attendanceData) as AttendanceRecord[];
 
     // 4. Return unified object
     return {
@@ -63,24 +73,16 @@ export const reportService = {
         date: e.date,
         created_by: e.created_by
       })),
-      production: productionData.map((p: any) => ({
-        product_name: p.product_name,
-        quantity: p.quantity,
-        date: p.date
-      })),
+      // Now correctly typed as ProductionRecord[]
+      production: aggregatedProduction,
       payroll: payrollData.map((p: any) => ({
-        // Use joined worker name if available
         worker_name: p.workers?.full_name || 'Unknown Worker',
         net_pay: p.net_pay,
         status: p.status,
         paid_at: p.paid_at
       })),
-      attendance: attendanceData.map((a: any) => ({
-        worker_name: a.workers?.full_name || 'Unknown Worker',
-        present: a.status === 'Present' ? 1 : 0,
-        absent: a.status === 'Absent' ? 1 : 0,
-        late: a.status === 'Late' ? 1 : 0
-      }))
+      // Now correctly typed as AttendanceRecord[]
+      attendance: aggregatedAttendance
     };
   }
 };

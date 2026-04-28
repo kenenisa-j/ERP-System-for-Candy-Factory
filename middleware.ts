@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'; 
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -28,28 +28,43 @@ export async function middleware(req: NextRequest) {
   );
 
   const { data: { session } } = await supabase.auth.getSession();
+  const path = req.nextUrl.pathname;
 
-  // 1. Redirect if not logged in
-  if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
+  // 1. Redirect if not logged in (allow access to login page)
+  if (!session && path !== '/login') {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
   // 2. Redirect if logged in and trying to go to login
-  if (session && req.nextUrl.pathname.startsWith('/login')) {
+  if (session && path === '/login') {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
-  // 3. Security Rule: Check for must_change_password
+  // 3. Logic for logged-in users (Profile checks)
   if (session) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('must_change_password')
+      .select('must_change_password, role, is_active')
       .eq('id', session.user.id)
       .maybeSingle();
 
-    // If password change is required, force redirect to /change-password
-    if (profile?.must_change_password && req.nextUrl.pathname !== '/change-password') {
+    // Security Rule: Block inactive users
+    if (profile && profile.is_active === false) {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+
+    // Security Rule: Forced password change
+    if (profile?.must_change_password && path !== '/change-password') {
       return NextResponse.redirect(new URL('/change-password', req.url));
+    }
+
+    // Admin Protection Logic
+    const adminPaths = ['/workers', '/payroll', '/staff'];
+    const isTryingToAccessAdmin = adminPaths.some(adminPath => path.startsWith(adminPath));
+    
+    if (isTryingToAccessAdmin && profile?.role !== 'owner' && profile?.role !== 'superadmin' && path !== '/unauthorized') {
+      return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
   }
 
@@ -57,6 +72,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Added /change-password to config so middleware doesn't trigger loops
-  matcher: ['/dashboard/:path*', '/login', '/change-password'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

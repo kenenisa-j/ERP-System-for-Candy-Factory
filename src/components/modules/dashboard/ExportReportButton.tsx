@@ -31,13 +31,13 @@ export default function ExportReportButton({ month, year }: ExportButtonProps) {
     <button
       onClick={handleDownload}
       disabled={isExporting}
-      className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+      className={`w-full sm:w-auto px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center ${
         isExporting 
           ? 'bg-gray-400 cursor-not-allowed shadow-none' 
           : 'bg-gray-800 hover:bg-black text-white shadow-md hover:shadow-lg'
       }`}
     >
-      {isExporting ? 'Generating...' : 'Export Report'}
+      {isExporting ? 'Generating...' : 'Export PDF'}
     </button>
   );
 }

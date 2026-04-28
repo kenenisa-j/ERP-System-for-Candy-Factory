@@ -67,17 +67,19 @@ export const payrollService = {
     if (error) throw new Error(error.message);
   },
 
-  // Generate monthly payroll for all workers (Fixed to skip existing records)
+  // Generate monthly payroll for all active workers (Fixed to skip inactive and existing records)
   async generateMonthlyPayroll(month: string) {
     const formattedMonth = `${month}-01`;
 
-    // 1. Get all workers
+    // 1. Get all ACTIVE workers
     const { data: workers, error: workerError } = await supabase
       .from('workers')
-      .select('id, base_salary');
+      .select('id, base_salary')
+      .eq('is_active', true); // CRITICAL: Skip inactive workers
+      
     if (workerError) throw new Error(workerError.message);
 
-    // 2. Get existing payroll records for this month to identify who already has a record
+    // 2. Get existing payroll records for this month
     const { data: existingPayroll, error: payrollError } = await supabase
       .from('payroll')
       .select('worker_id')
@@ -86,7 +88,7 @@ export const payrollService = {
 
     const existingWorkerIds = new Set(existingPayroll?.map(p => p.worker_id) || []);
 
-    // 3. Only create entries for workers who do NOT have a payroll record yet
+    // 3. Only create entries for active workers who do NOT have a record yet
     const newEntries = workers
       .filter(w => !existingWorkerIds.has(w.id))
       .map(w => ({

@@ -40,7 +40,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login');
   };
 
-  // Logic: Admins see management modules, Staff see only operational modules
   const isAdmin = userRole === 'owner' || userRole === 'superadmin';
 
   const navItems = [
@@ -49,7 +48,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Production', path: '/production' },
     { name: 'Expenses', path: '/expenses' },
     { name: 'Attendance', path: '/attendance' },
-    // Management Modules - Only for Admins
     ...(isAdmin ? [
       { name: 'Payroll', path: '/payroll' },
       { name: 'Staff', path: '/staff' },
@@ -59,8 +57,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <div className={`flex min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-        <aside className={`fixed inset-y-0 left-0 z-50 w-64 ${isDarkMode ? 'bg-gray-950' : 'bg-blue-900'} text-white p-6 transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* Container: h-screen and overflow-hidden ensures a static structure */}
+      <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+        
+        {/* Sidebar: flex-shrink-0 keeps it from collapsing, h-full keeps it static */}
+        <aside className={`flex-shrink-0 w-64 z-50 ${isDarkMode ? 'bg-gray-950' : 'bg-blue-900'} text-white p-6 transition-all duration-200 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:relative absolute inset-y-0`}>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold">Candy ERP</h2>
             <button className="md:hidden" onClick={() => setIsOpen(false)}>✕</button>
@@ -83,8 +84,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </aside>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm p-4 flex justify-between items-center sticky top-0 z-40`}>
+        {/* Content Area: flex-1 takes remaining space, overflow-y-auto makes it scrollable */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <header className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm p-4 flex justify-between items-center z-40`}>
             <button className="md:hidden p-2 bg-gray-100 dark:bg-gray-700 rounded" onClick={() => setIsOpen(!isOpen)}>☰</button>
             <div className="flex items-center gap-6">
               <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">{isDarkMode ? '☀️' : '🌙'}</button>
@@ -95,7 +97,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <button onClick={() => setShowLogoutModal(true)} className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-lg text-sm font-medium transition">Logout</button>
             </div>
           </header>
-          <main className="p-4 md:p-6">{children}</main>
+          
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
         </div>
 
         {showLogoutModal && (

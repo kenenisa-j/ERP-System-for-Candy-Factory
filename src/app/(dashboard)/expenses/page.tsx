@@ -12,6 +12,7 @@ import DateFilters from '@/components/shared/DateFilter';
 import ModuleSummaryHeader from '@/components/shared/ModuleSummaryHeader';
 
 export default function ExpensesPage() {
+  // 1. ALL HOOKS MUST BE CALLED AT THE TOP
   const [expenses, setExpenses] = useState<any[]>([]);
   const [totalAmount, setTotalAmount] = useState(0); 
   const [loading, setLoading] = useState(true);
@@ -23,10 +24,12 @@ export default function ExpensesPage() {
   const { range, setRange, startDate, endDate } = useTableFilters();
   const isMounted = useRef(true);
 
+  // 2. NOW you can define your logic
   const isAdmin = user?.role === 'superadmin' || user?.role === 'owner';
+  const isAccountDisabled = user && user.is_active === false && !isAdmin;
 
   const fetchExpenses = async () => {
-    if (!isMounted.current) return;
+    if (!isMounted.current || (user?.is_active === false && !isAdmin)) return;
     
     try {
       setLoading(true);
@@ -45,10 +48,10 @@ export default function ExpensesPage() {
 
   useEffect(() => {
     isMounted.current = true;
-    if (!authLoading && user) fetchExpenses();
+    if (!authLoading && user && !isAccountDisabled) fetchExpenses();
     else if (!authLoading) setLoading(false);
     return () => { isMounted.current = false; };
-  }, [user, authLoading, range]);
+  }, [user, authLoading, range, isAccountDisabled]);
 
   const canEdit = (expense: any) => {
     return user?.role === 'superadmin' || expense.created_by === user?.id;
@@ -60,19 +63,34 @@ export default function ExpensesPage() {
   };
 
   const handleAddClick = () => {
+    if (isAccountDisabled) {
+      alert("Your account is disabled. You cannot perform this action.");
+      return;
+    }
     setEditingExpense(null);
     setIsModalOpen(true);
   };
 
-  if (loading || authLoading) return <Loading />;
+  // 3. RENDER LOGIC
+  if (authLoading || (loading && expenses.length === 0 && !isAccountDisabled)) return <Loading />;
   if (error) return <ErrorMessage message={error} onRetry={fetchExpenses} />;
+  
+  if (isAccountDisabled) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-red-100 text-center max-w-md w-full">
+          <div className="text-4xl mb-4">🚫</div>
+          <h2 className="text-xl font-bold text-gray-900">Account Disabled</h2>
+          <p className="text-gray-500 mt-2">Your account is currently disabled. Please contact your administrator to regain access.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    // Responsive padding and centered max-width container
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Modern Header Section */}
         <ModuleSummaryHeader 
           title="Expenses" 
           isAdmin={isAdmin}
@@ -83,9 +101,7 @@ export default function ExpensesPage() {
           filterComponent={<DateFilters range={range} onChange={setRange} />}
         />
 
-        {/* Main Table Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header section with responsive stacking */}
           <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="font-bold text-gray-700">Recent Transactions</h3>
             <button 

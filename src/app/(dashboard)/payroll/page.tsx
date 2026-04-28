@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Added
+import { supabase } from '@/lib/supabaseClient'; // Added
 import { payrollService, PayrollRecord } from '@/services/payroll.service';
 import PayrollTable from '@/components/modules/payroll/PayrollTable';
 import PayrollSummary from '@/components/modules/payroll/PayrollSummary';
@@ -7,11 +9,34 @@ import EditPayrollModal from '@/components/modules/payroll/MarkPaidModal';
 import ConfirmModal from '@/components/shared/ConfirmModal';
 
 export default function PayrollPage() {
+  const router = useRouter(); // Added
   const [payroll, setPayroll] = useState<PayrollRecord[]>([]);
   const [month, setMonth] = useState('2026-04');
   const [editingRecord, setEditingRecord] = useState<PayrollRecord | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // NEW: Security Gatekeeper
+  useEffect(() => {
+    const checkAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.role !== 'owner' && profile?.role !== 'superadmin') {
+        router.push('/unauthorized');
+      }
+    };
+    checkAccess();
+  }, [router]);
 
   const load = async () => {
     setIsLoading(true);

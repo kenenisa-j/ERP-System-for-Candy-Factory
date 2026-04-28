@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
@@ -9,11 +10,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null); // NEW: Error state
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null); // Clear previous errors
 
     // 1. Attempt login
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -21,7 +24,7 @@ export default function LoginPage() {
     });
 
     if (authError) { 
-      alert(authError.message); 
+      setError(authError.message); 
       setLoading(false); 
       return; 
     }
@@ -34,29 +37,36 @@ export default function LoginPage() {
       .single();
 
     if (profileError) { 
-      alert("Could not load user profile"); 
+      setError("Could not load user profile"); 
       await supabase.auth.signOut();
       setLoading(false); 
       return; 
     }
 
-    // 3. Authorization Logic
-    if (profile.role === 'staff' || profile.role === 'superadmin') {
-      // We don't need manual redirect logic for /change-password here
-      // The Middleware will handle the redirect if must_change_password is true!
+    // 3. Authorization Logic - Role-based routing
+    if (profile.role === 'owner' || profile.role === 'superadmin') {
       router.push('/dashboard');
+    } else if (profile.role === 'staff') {
+      router.push('/sales');
     } else {
-      alert("Unauthorized role");
+      setError("Unauthorized role");
       await supabase.auth.signOut();
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <form onSubmit={handleLogin} className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl space-y-4">
         <h1 className="text-2xl font-bold text-center text-blue-900">Candy ERP Login</h1>
+        
+        {/* NEW: Error Message Display */}
+        {error && (
+          <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg text-center">
+            {error}
+          </div>
+        )}
+
         <Input 
           type="email" 
           placeholder="Email address" 

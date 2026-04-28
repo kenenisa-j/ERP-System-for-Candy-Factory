@@ -21,7 +21,7 @@ export const staffService = {
         id: authData.user!.id,
         full_name: staffData.full_name,
         role: 'staff',
-        must_change_password: true, // TRIGGER: Forces redirect on first login
+        must_change_password: true,
         is_active: true,
       })
       .select()
@@ -38,7 +38,8 @@ export const staffService = {
     const { data, error } = await supabase
       .from('profiles')
       .update({ is_active })
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
     if (error) throw error;
     return data;
@@ -51,7 +52,8 @@ export const staffService = {
     const { data, error } = await supabase
       .from('profiles')
       .update({ must_change_password: true })
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
     if (error) throw error;
     return data;

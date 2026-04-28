@@ -20,12 +20,16 @@ export default function DashboardPage() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
 
+  // NEW: Updated Auth Guard to match the /unauthorized flow
   useEffect(() => {
-    if (!authLoading && user && user.role !== 'superadmin' && user.role !== 'owner') {
-      router.push('/');
+    if (!authLoading && user) {
+      if (user.role !== 'superadmin' && user.role !== 'owner') {
+        router.push('/unauthorized');
+      }
     }
   }, [user, authLoading, router]);
 
+  // Data Fetching: Triggered whenever month, year, or user changes
   useEffect(() => {
     if (user && (user.role === 'superadmin' || user.role === 'owner')) {
       fetchDashboardData();
@@ -39,6 +43,7 @@ export default function DashboardPage() {
       setData(result);
     } catch (error) {
       console.error("Dashboard fetch error:", error);
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -51,13 +56,14 @@ export default function DashboardPage() {
       </div>
     );
   }
+  
   if (!user || !data) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* HEADER SECTION: Responsive Layout */}
+        {/* HEADER SECTION */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight">Intelligence Center</h1>
@@ -73,32 +79,32 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* KPI CARDS: Responsive Grid */}
-        <DashboardCards data={{ ...data.summary, trends: data.summary.trends }} />
+        {/* KPI CARDS */}
+        <DashboardCards data={{ ...data.summary, trends: data.summary?.trends || [] }} />
 
         {/* OPERATIONAL ALERTS */}
-        <MetricsStrip data={data.operational} />
+        <MetricsStrip data={data.operational || {}} />
 
-        {/* DETAILED FEED: Responsive Two-Column Layout */}
+        {/* DETAILED FEED */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="space-y-6">
             <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
               <RecentRecordsTable 
                 title="Latest Sales" 
-                records={data.recentRecords.sales || []} 
+                records={data.recentRecords?.sales || []} 
                 type="sale" 
               />
             </div>
             <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
               <RecentRecordsTable 
                 title="Latest Expenses" 
-                records={data.recentRecords.expenses || []} 
+                records={data.recentRecords?.expenses || []} 
                 type="expense" 
               />
             </div>
           </div>
           
-          {/* ACTIVITY FEED */}
+          {/* ACTIVITY FEED: Data is passed directly from 'data' state */}
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
             <ActivityStream logs={data.recentActivity || []} />
           </div>
