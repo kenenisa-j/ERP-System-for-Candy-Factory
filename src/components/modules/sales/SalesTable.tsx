@@ -32,7 +32,7 @@ export default function SalesTable({ sales, onEdit, canEdit }: SalesTableProps) 
                     {s.customer_name}
                   </td>
                   <td className="p-3 md:p-4 truncate">{s.quantity}</td>
-                  <td className="p-3 md:p-4 hidden sm:table-cell truncate">{s.price}</td>
+                  <td className="p-3 md:p-4 hidden sm:table-cell truncate">{s.price} Birr</td>
                   <td className="p-3 md:p-4 font-bold truncate">{s.total} Birr</td>
                   <td className="hidden md:table-cell p-4 truncate text-xs">
                     {new Date(s.date).toLocaleDateString()}

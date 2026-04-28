@@ -55,8 +55,9 @@ export async function middleware(req: NextRequest) {
     }
 
     // Security Rule: Forced password change
-    if (profile?.must_change_password && path !== '/change-password') {
-      return NextResponse.redirect(new URL('/change-password', req.url));
+    // UPDATED: Changed '/change-password' to '/reset-password' to match your folder
+    if (profile?.must_change_password && path !== '/reset-password') {
+      return NextResponse.redirect(new URL('/reset-password', req.url));
     }
 
     // Admin Protection Logic

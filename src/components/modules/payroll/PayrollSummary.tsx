@@ -9,8 +9,8 @@ export default function PayrollSummary({ payroll }: { payroll: PayrollRecord[] }
   const pendingCount = payroll.filter(p => p.status === 'pending').length;
 
   const cards = [
-    { label: 'Total Payroll Cost', value: `$${totalCost.toLocaleString()}`, color: 'text-gray-900' },
-    { label: 'Overtime Cost', value: `$${totalOvertime.toLocaleString()}`, color: 'text-blue-600' },
+    { label: 'Total Payroll Cost', value: `${totalCost.toLocaleString()} Birr`, color: 'text-gray-900' },
+    { label: 'Overtime Cost', value: `${totalOvertime.toLocaleString()} Birr`, color: 'text-blue-600' },
     { label: 'Paid Payments', value: paidCount, color: 'text-green-600' },
     { label: 'Pending Payments', value: pendingCount, color: 'text-yellow-600' },
   ];

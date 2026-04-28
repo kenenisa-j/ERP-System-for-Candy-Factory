@@ -10,13 +10,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // NEW: Error state
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null);
 
     // 1. Attempt login
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -29,10 +29,10 @@ export default function LoginPage() {
       return; 
     }
 
-    // 2. Fetch profile to check role
+    // 2. Fetch profile to check role AND must_change_password flag
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, must_change_password')
       .eq('id', authData.user!.id)
       .single();
 
@@ -43,7 +43,15 @@ export default function LoginPage() {
       return; 
     }
 
-    // 3. Authorization Logic - Role-based routing
+    // 3. Authorization & Forced Password Reset Logic
+    
+    // Check for forced password change first
+    if (profile.must_change_password) {
+      router.push('/reset-password');
+      return;
+    }
+
+    // Role-based routing
     if (profile.role === 'owner' || profile.role === 'superadmin') {
       router.push('/dashboard');
     } else if (profile.role === 'staff') {
@@ -60,7 +68,6 @@ export default function LoginPage() {
       <form onSubmit={handleLogin} className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl space-y-4">
         <h1 className="text-2xl font-bold text-center text-blue-900">Candy ERP Login</h1>
         
-        {/* NEW: Error Message Display */}
         {error && (
           <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg text-center">
             {error}

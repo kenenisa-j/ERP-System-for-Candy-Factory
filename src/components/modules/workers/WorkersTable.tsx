@@ -49,7 +49,7 @@ export default function WorkersTable({
                   {w.position}
                 </td>
                 <td className="p-4 text-gray-600 text-xs md:text-sm whitespace-nowrap">
-                  {Number(w.base_salary || 0).toLocaleString()}
+                  {Number(w.base_salary || 0).toLocaleString()} Birr
                 </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase ${

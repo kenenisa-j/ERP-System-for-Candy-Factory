@@ -42,19 +42,19 @@ export default function PayrollTable({
                   {p.workers?.full_name || 'N/A'}
                 </td>
                 <td className="p-4 text-gray-600 hidden md:table-cell truncate">
-                  ${Number(p.base_salary || 0).toLocaleString()}
+                  {Number(p.base_salary || 0).toLocaleString()} Birr
                 </td>
                 <td className="p-4 text-gray-600 hidden lg:table-cell truncate">
                   {p.overtime_hours || 0}
                 </td>
                 <td className="p-4 text-gray-600 hidden lg:table-cell truncate">
-                  ${Number(p.bonus || 0).toLocaleString()}
+                   {Number(p.bonus || 0).toLocaleString()} Birr
                 </td>
                 <td className="p-4 text-gray-600 hidden lg:table-cell truncate">
-                  ${Number(p.deductions || 0).toLocaleString()}
+                   {Number(p.deductions || 0).toLocaleString()} Birr
                 </td>
                 <td className="p-4 font-bold text-green-700 truncate">
-                  ${Number(p.net_pay || 0).toLocaleString()}
+                  {Number(p.net_pay || 0).toLocaleString()} Birr
                 </td>
                 <td className="p-4 truncate">
                   <span className={`px-2 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase ${

@@ -26,7 +26,7 @@ export default function ExpensesTable({ expenses, onEdit, canEdit }: ExpensesTab
             {expenses.length > 0 ? expenses.map((exp) => (
               <tr key={exp.id} className="hover:bg-gray-50">
                 <td className="p-4 truncate" title={exp.description}>{exp.description}</td>
-                <td className="p-4 font-bold truncate">{exp.amount}</td>
+                <td className="p-4 font-bold truncate">{exp.amount} Birr</td>
                 <td className="p-4 hidden sm:table-cell truncate">{exp.category}</td>
                 <td className="p-4 hidden md:table-cell truncate">{new Date(exp.date).toLocaleDateString()}</td>
                 <td className="p-4 text-xs text-gray-500 hidden lg:table-cell truncate">
