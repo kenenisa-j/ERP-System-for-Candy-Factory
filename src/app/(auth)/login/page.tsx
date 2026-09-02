@@ -175,27 +175,20 @@ export default function LoginPage() {
           <p className="text-center text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">
             Quick Fill Demo Accounts
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
               onClick={() => fillQuickAccount('owner.test@candyerp.test')}
-              className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200/60 transition text-center truncate"
+              className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-xl border border-indigo-200/60 transition text-center truncate flex items-center justify-center gap-1.5"
             >
-              👑 Owner
-            </button>
-            <button
-              type="button"
-              onClick={() => fillQuickAccount('superadmin.test@candyerp.test')}
-              className="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200/60 transition text-center truncate"
-            >
-              ⚡ Admin
+              <span>⚡ Admin Account</span>
             </button>
             <button
               type="button"
               onClick={() => fillQuickAccount('staff.test@candyerp.test')}
-              className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200/60 transition text-center truncate"
+              className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-xl border border-blue-200/60 transition text-center truncate flex items-center justify-center gap-1.5"
             >
-              👥 Staff
+              <span>👥 Staff Account</span>
             </button>
           </div>
         </div>
