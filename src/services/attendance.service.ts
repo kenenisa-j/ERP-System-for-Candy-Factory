@@ -16,8 +16,8 @@ export const attendanceService = {
         date,
         recorded_by,
         worker_id,
-        workers:fk_attendance_worker!inner(full_name, is_active),
-        profiles:fk_attendance_recorded_by(full_name)
+        workers!inner(full_name, is_active),
+        profiles:recorded_by(full_name)
       `)
       .eq('workers.is_active', true) 
       .order('date', { ascending: false });
