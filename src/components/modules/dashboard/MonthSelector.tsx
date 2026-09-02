@@ -27,20 +27,20 @@ export default function MonthSelector({ month, year, onChange }: Props) {
       <select 
         value={month} 
         onChange={(e) => onChange(Number(e.target.value), year)} 
-        className="p-2.5 border border-gray-300 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-600 outline-none transition-all cursor-pointer"
+        className="p-2.5 border border-gray-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 shadow-sm focus:ring-2 focus:ring-blue-600 outline-none transition-all cursor-pointer text-sm font-medium"
       >
         {months.map((m, i) => (
-          <option key={m} value={i}>{m}</option>
+          <option key={m} value={i} className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">{m}</option>
         ))}
       </select>
 
       <select 
         value={year} 
         onChange={(e) => onChange(month, Number(e.target.value))} 
-        className="p-2.5 border border-gray-300 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-600 outline-none transition-all cursor-pointer"
+        className="p-2.5 border border-gray-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 shadow-sm focus:ring-2 focus:ring-blue-600 outline-none transition-all cursor-pointer text-sm font-medium"
       >
         {years.map(y => (
-          <option key={y} value={y}>{y}</option>
+          <option key={y} value={y} className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">{y}</option>
         ))}
       </select>
     </div>

@@ -8,11 +8,10 @@ interface SalesTableProps {
 
 export default function SalesTable({ sales, onEdit, canEdit }: SalesTableProps) {
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden w-full">
+    <div className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden w-full border border-gray-100 dark:border-slate-800">
       <div className="overflow-x-auto">
-        {/* Added 'table-fixed' to force columns to respect defined widths */}
         <table className="w-full text-left text-sm table-fixed border-collapse">
-          <thead className="bg-gray-100 border-b">
+          <thead className="bg-gray-50 dark:bg-slate-800/90 border-b border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 font-bold uppercase text-[11px] tracking-wider">
             <tr>
               <th className="w-[120px] p-3 md:p-4">Customer</th>
               <th className="w-[60px] p-3 md:p-4">Qty</th>
@@ -24,23 +23,23 @@ export default function SalesTable({ sales, onEdit, canEdit }: SalesTableProps) 
               <th className="w-[120px] p-3 md:p-4">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-gray-900 dark:text-slate-200">
             {sales.length > 0 ? (
               sales.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50">
-                  <td className="p-3 md:p-4 font-medium truncate" title={s.customer_name}>
+                <tr key={s.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/60 transition-colors">
+                  <td className="p-3 md:p-4 font-semibold text-gray-900 dark:text-slate-100 truncate" title={s.customer_name}>
                     {s.customer_name}
                   </td>
                   <td className="p-3 md:p-4 truncate">{s.quantity}</td>
                   <td className="p-3 md:p-4 hidden sm:table-cell truncate">{s.price} Birr</td>
-                  <td className="p-3 md:p-4 font-bold truncate">{s.total} Birr</td>
-                  <td className="hidden md:table-cell p-4 truncate text-xs">
+                  <td className="p-3 md:p-4 font-extrabold text-indigo-600 dark:text-indigo-400 truncate">{s.total} Birr</td>
+                  <td className="hidden md:table-cell p-4 truncate text-xs text-gray-600 dark:text-slate-400">
                     {new Date(s.date).toLocaleDateString()}
                   </td>
-                  <td className="hidden lg:table-cell p-4 text-xs text-gray-500 truncate">
+                  <td className="hidden lg:table-cell p-4 text-xs text-gray-500 dark:text-slate-400 truncate">
                     {s.created_by_profile?.full_name || 'Staff'}
                   </td>
-                  <td className="hidden lg:table-cell p-4 text-xs text-gray-500 truncate">
+                  <td className="hidden lg:table-cell p-4 text-xs text-gray-500 dark:text-slate-400 truncate">
                     {s.updated_by_profile?.full_name || '-'}
                   </td>
                   <td className="p-3 md:p-4">
@@ -48,7 +47,7 @@ export default function SalesTable({ sales, onEdit, canEdit }: SalesTableProps) 
                       {canEdit(s) && (
                         <button 
                           onClick={() => onEdit(s)} 
-                          className="text-blue-700 font-bold hover:underline text-xs"
+                          className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline text-xs"
                         >
                           Edit
                         </button>
@@ -58,12 +57,12 @@ export default function SalesTable({ sales, onEdit, canEdit }: SalesTableProps) 
                           href={s.receipt_url} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="text-green-700 font-bold hover:underline text-xs"
+                          className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline text-xs"
                         >
                           View
                         </a>
                       ) : (
-                        <span className="text-gray-300 text-[10px]">No Receipt</span>
+                        <span className="text-gray-400 dark:text-slate-500 text-[10px]">No Receipt</span>
                       )}
                     </div>
                   </td>
@@ -71,7 +70,7 @@ export default function SalesTable({ sales, onEdit, canEdit }: SalesTableProps) 
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="p-4 text-center text-gray-500">No sales found for this period.</td>
+                <td colSpan={8} className="p-6 text-center text-gray-500 dark:text-slate-400 font-medium">No sales found for this period.</td>
               </tr>
             )}
           </tbody>

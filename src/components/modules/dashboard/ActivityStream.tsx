@@ -14,35 +14,35 @@ export default function ActivityStream({ logs = [] }: { logs: any[] }) {
   const safeLogs = Array.isArray(logs) ? logs : [];
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="font-bold text-gray-800">Recent Activity</h2>
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Live Feed</span>
+        <h2 className="font-bold text-gray-800 dark:text-slate-100">Recent Activity</h2>
+        <span className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Live Feed</span>
       </div>
       
-      {/* Mobile/Tablet List View - Unchanged */}
+      {/* Mobile/Tablet List View */}
       <div className="flex flex-col gap-3 md:hidden">
         {safeLogs.length > 0 ? safeLogs.map((log) => {
           const style = getModuleStyle(log.module || '');
           return (
-            <div key={log.id} className="p-3 border border-gray-50 rounded-xl bg-gray-50/50">
+            <div key={log.id} className="p-3 border border-gray-100 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-800/40">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-gray-700 text-sm">{log.user_name}</span>
-                <span className="text-[10px] text-gray-400">{new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="font-bold text-gray-700 dark:text-slate-200 text-sm">{log.user_name}</span>
+                <span className="text-[10px] text-gray-400 dark:text-slate-400">{new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-              <p className="text-sm text-gray-600">{log.action} <span className="font-medium text-gray-800">{log.record_name}</span></p>
+              <p className="text-sm text-gray-600 dark:text-slate-300">{log.action} <span className="font-medium text-gray-800 dark:text-slate-100">{log.record_name}</span></p>
               <div className={`mt-2 text-xs font-semibold ${style.color}`}>
                 {style.icon} {log.module}
               </div>
             </div>
           )
-        }) : <p className="text-gray-400 text-sm italic text-center py-4">No logs found.</p>}
+        }) : <p className="text-gray-400 dark:text-slate-500 text-sm italic text-center py-4">No logs found.</p>}
       </div>
 
-      {/* Desktop Table View - Adjusted Spacing */}
+      {/* Desktop Table View */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="text-gray-400 uppercase text-[10px] border-b border-gray-50">
+          <thead className="text-gray-400 dark:text-slate-400 uppercase text-[10px] border-b border-gray-100 dark:border-slate-800">
             <tr>
               <th className="pb-3 font-semibold w-[20%]">User</th>
               <th className="pb-3 font-semibold w-[15%]">Action</th>
@@ -51,23 +51,23 @@ export default function ActivityStream({ logs = [] }: { logs: any[] }) {
               <th className="pb-3 font-semibold w-[15%]">Time</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
             {safeLogs.length > 0 ? safeLogs.map((log) => {
               const style = getModuleStyle(log.module || '');
               const timeString = new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
               return (
-                <tr key={log.id} className="hover:bg-gray-50 transition">
-                  <td className="py-4 font-medium text-gray-700">{log.user_name}</td>
-                  <td className="py-4 text-gray-600">{log.action}</td>
+                <tr key={log.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/60 transition">
+                  <td className="py-4 font-medium text-gray-700 dark:text-slate-200">{log.user_name}</td>
+                  <td className="py-4 text-gray-600 dark:text-slate-300">{log.action}</td>
                   <td className={`py-4 font-bold ${style.color} pr-4`}> 
                     <span className="mr-1">{style.icon}</span>{log.module}
                   </td>
-                  <td className="py-4 text-gray-600 truncate max-w-[150px]">{log.record_name}</td>
-                  <td className="py-4 text-gray-400 text-xs">{timeString}</td>
+                  <td className="py-4 text-gray-600 dark:text-slate-300 truncate max-w-[150px]">{log.record_name}</td>
+                  <td className="py-4 text-gray-400 dark:text-slate-400 text-xs">{timeString}</td>
                 </tr>
               );
             }) : (
-              <tr><td colSpan={5} className="py-6 text-gray-400 text-center italic">No activity yet.</td></tr>
+              <tr><td colSpan={5} className="py-6 text-gray-400 dark:text-slate-500 text-center italic">No activity yet.</td></tr>
             )}
           </tbody>
         </table>

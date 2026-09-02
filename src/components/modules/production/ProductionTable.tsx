@@ -8,11 +8,10 @@ interface ProductionTableProps {
 
 export default function ProductionTable({ data, onEdit, canEdit }: ProductionTableProps) {
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden w-full">
+    <div className="bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden w-full border border-gray-100 dark:border-slate-800">
       <div className="overflow-x-auto">
-        {/* Added table-fixed to maintain column integrity */}
         <table className="w-full text-left text-sm table-fixed border-collapse">
-          <thead className="bg-gray-100 border-b">
+          <thead className="bg-gray-50 dark:bg-slate-800/90 border-b border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 font-bold uppercase text-[11px] tracking-wider">
             <tr>
               <th className="w-[140px] p-4 truncate">Product</th>
               <th className="w-[80px] p-4 truncate">Qty</th>
@@ -22,26 +21,26 @@ export default function ProductionTable({ data, onEdit, canEdit }: ProductionTab
               <th className="w-[80px] p-4">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-gray-900 dark:text-slate-200">
             {data.length > 0 ? (
               data.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="p-4 font-medium truncate" title={p.product_name}>{p.product_name}</td>
-                  <td className="p-4 font-bold truncate">{p.quantity}</td>
-                  <td className="p-4 hidden md:table-cell truncate">
+                <tr key={p.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/60 transition-colors">
+                  <td className="p-4 font-semibold text-gray-900 dark:text-slate-100 truncate" title={p.product_name}>{p.product_name}</td>
+                  <td className="p-4 font-extrabold text-purple-700 dark:text-purple-400 truncate">{p.quantity}</td>
+                  <td className="p-4 hidden md:table-cell truncate text-xs text-gray-600 dark:text-slate-400">
                     {new Date(p.date).toLocaleDateString()}
                   </td>
-                  <td className="p-4 text-xs text-gray-500 hidden lg:table-cell truncate">
+                  <td className="p-4 text-xs text-gray-500 dark:text-slate-400 hidden lg:table-cell truncate">
                     {p.created_by_profile?.full_name || 'Staff'}
                   </td>
-                  <td className="p-4 text-xs text-gray-500 hidden lg:table-cell truncate">
+                  <td className="p-4 text-xs text-gray-500 dark:text-slate-400 hidden lg:table-cell truncate">
                     {p.updated_by_profile?.full_name || '-'}
                   </td>
                   <td className="p-4">
                     {canEdit && (
                       <button 
                         onClick={() => onEdit(p)} 
-                        className="text-purple-900 font-medium hover:underline text-xs"
+                        className="text-purple-700 dark:text-purple-400 font-bold hover:underline text-xs"
                       >
                         Edit
                       </button>
@@ -51,7 +50,7 @@ export default function ProductionTable({ data, onEdit, canEdit }: ProductionTab
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-gray-500">
+                <td colSpan={6} className="p-6 text-center text-gray-500 dark:text-slate-400 font-medium">
                   No records found for this period.
                 </td>
               </tr>

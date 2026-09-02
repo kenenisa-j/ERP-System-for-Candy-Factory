@@ -60,14 +60,14 @@ export default function DashboardPage() {
   if (!user || !data) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-4 md:p-6 lg:p-8 text-gray-900 dark:text-slate-100 transition-colors">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* HEADER SECTION */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight">Intelligence Center</h1>
-            <p className="text-xs md:text-sm text-gray-500">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-slate-100 tracking-tight">Intelligence Center</h1>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-slate-400">
               {new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })} Overview
             </p>
           </div>
@@ -88,14 +88,14 @@ export default function DashboardPage() {
         {/* DETAILED FEED */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
               <RecentRecordsTable 
                 title="Latest Sales" 
                 records={data.recentRecords?.sales || []} 
                 type="sale" 
               />
             </div>
-            <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
               <RecentRecordsTable 
                 title="Latest Expenses" 
                 records={data.recentRecords?.expenses || []} 
@@ -105,7 +105,7 @@ export default function DashboardPage() {
           </div>
           
           {/* ACTIVITY FEED: Data is passed directly from 'data' state */}
-          <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
             <ActivityStream logs={data.recentActivity || []} />
           </div>
         </div>

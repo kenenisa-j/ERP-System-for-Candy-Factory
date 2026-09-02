@@ -58,12 +58,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className={isDarkMode ? 'dark' : ''}>
       {/* Container: h-screen and overflow-hidden ensures a static structure */}
-      <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'bg-slate-950 text-slate-100 dark' : 'bg-gray-50 text-gray-900'}`}>
         
-        {/* Sidebar: flex-shrink-0 keeps it from collapsing, h-full keeps it static */}
-        <aside className={`flex-shrink-0 w-64 z-50 ${isDarkMode ? 'bg-gray-950' : 'bg-blue-900'} text-white p-6 transition-all duration-200 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:relative absolute inset-y-0`}>
+        {/* Sidebar */}
+        <aside className={`flex-shrink-0 w-64 z-50 ${isDarkMode ? 'bg-slate-900 border-r border-slate-800' : 'bg-blue-900'} text-white p-6 transition-all duration-200 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:relative absolute inset-y-0`}>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold">Candy ERP</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Candy ERP</h2>
             <button className="md:hidden" onClick={() => setIsOpen(false)}>✕</button>
           </div>
           <nav className="space-y-2">
@@ -72,10 +72,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.path} 
                 href={item.path} 
                 onClick={() => setIsOpen(false)}
-                className={`block py-2.5 px-4 rounded-lg transition-all border-l-4 ${
+                className={`block py-2.5 px-4 rounded-xl transition-all border-l-4 ${
                   pathname === item.path 
-                    ? 'bg-blue-600 border-blue-300 font-semibold shadow-md' 
-                    : 'border-transparent hover:bg-blue-800'
+                    ? 'bg-blue-600 border-blue-300 font-semibold shadow-md text-white' 
+                    : 'border-transparent text-slate-200 hover:bg-blue-800/60 hover:text-white'
                 }`}
               >
                 {item.name}
@@ -84,21 +84,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </aside>
 
-        {/* Content Area: flex-1 takes remaining space, overflow-y-auto makes it scrollable */}
+        {/* Content Area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <header className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm p-4 flex justify-between items-center z-40`}>
-            <button className="md:hidden p-2 bg-gray-100 dark:bg-gray-700 rounded" onClick={() => setIsOpen(!isOpen)}>☰</button>
+          <header className={`${isDarkMode ? 'bg-slate-900 border-b border-slate-800 text-slate-100' : 'bg-white border-b border-gray-100 text-gray-800'} shadow-sm p-4 flex justify-between items-center z-40`}>
+            <button className="md:hidden p-2 bg-gray-100 dark:bg-slate-800 rounded-lg" onClick={() => setIsOpen(!isOpen)}>☰</button>
             <div className="flex items-center gap-6">
-              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">{isDarkMode ? '☀️' : '🌙'}</button>
+              <button 
+                onClick={() => setIsDarkMode(!isDarkMode)} 
+                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition flex items-center justify-center text-base"
+              >
+                {isDarkMode ? '☀️' : '🌙'}
+              </button>
               <div className="hidden md:flex flex-col text-sm">
                 <span className="font-bold">{userName || 'User'}</span>
-                <span className="text-gray-500 dark:text-gray-400 text-xs">{userEmail}</span>
+                <span className="text-gray-500 dark:text-slate-400 text-xs">{userEmail}</span>
               </div>
-              <button onClick={() => setShowLogoutModal(true)} className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-lg text-sm font-medium transition">Logout</button>
+              <button onClick={() => setShowLogoutModal(true)} className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 px-4 py-2 rounded-xl text-sm font-medium transition">Logout</button>
             </div>
           </header>
           
-          <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
+          <main className={`flex-1 overflow-y-auto p-4 md:p-6 ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-gray-50 text-gray-900'}`}>{children}</main>
         </div>
 
         {showLogoutModal && (
