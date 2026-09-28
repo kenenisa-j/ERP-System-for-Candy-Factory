@@ -47,9 +47,13 @@ export const dashboardService = {
       supabase.from('expenses').select('description, amount, date').gte('date', currentStart).lte('date', currentEnd).order('date', { ascending: false }).limit(5)
     ]);
 
-    const calcTrend = (curr: number, prev: number) => {
-      if (prev === 0) return curr > 0 ? "+100%" : "0%";
-      const diff = ((curr - prev) / prev) * 100;
+    // Dynamically calculates % change between current and previous month.
+    // Returns "New" when there's no prior month data to compare against,
+    // so we never show a misleading hardcoded +100%.
+    const calcTrend = (curr: number, prev: number): string => {
+      if (prev === 0 && curr === 0) return "0%";
+      if (prev === 0 && curr > 0) return "New";
+      const diff = ((curr - prev) / Math.abs(prev)) * 100;
       return `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`;
     };
 
@@ -61,15 +65,22 @@ export const dashboardService = {
     const totalExpenses = cExp + cPayroll;
     const totalProd = currProd.data?.reduce((s, r) => s + r.quantity, 0) || 0;
 
+    const salesTrend = calcTrend(cSales, pSales);
+    const expTrend = calcTrend(totalExpenses, pExp);
+    const netCurr = cSales - totalExpenses;
+    const netPrev = pSales - pExp;
+    const netTrend = calcTrend(netCurr, netPrev);
+
     return {
       summary: {
         totalSales: cSales,
         totalExpenses: totalExpenses,
-        netProfit: cSales - totalExpenses,
+        netProfit: netCurr,
         totalProduction: totalProd,
         trends: {
-          sales: calcTrend(cSales, pSales),
-          expenses: calcTrend(cExp + cPayroll, pExp)
+          sales: salesTrend,
+          expenses: expTrend,
+          netProfit: netTrend,
         }
       },
       operational: {
