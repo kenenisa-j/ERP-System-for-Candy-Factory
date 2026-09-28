@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, Eye, EyeOff, ShieldCheck, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -67,139 +67,338 @@ export default function LoginPage() {
     setError(null);
   };
 
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 relative overflow-hidden p-4 sm:p-6">
-      {/* Background Decorative Glow Elements */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-600/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Main Glassmorphic Container */}
-      <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl shadow-2xl border border-white/40 relative z-10 space-y-6">
-        
-        {/* Brand Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30 mb-1">
-            <Sparkles className="w-8 h-8 animate-pulse" />
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+
+      {/* ── LEFT PANEL: matches sidebar bg-gray-900 ── */}
+      <div style={{
+        display: 'none',
+        width: '420px',
+        flexShrink: 0,
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        backgroundColor: '#111827', // gray-900
+        padding: '48px 40px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+        className="lg-panel"
+      >
+        {/* Subtle glow blobs */}
+        <div style={{
+          position: 'absolute', top: '-100px', right: '-100px',
+          width: '350px', height: '350px', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(96,165,250,0.08) 0%, transparent 70%)',
+          pointerEvents: 'none'
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-80px', left: '-80px',
+          width: '280px', height: '280px', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%)',
+          pointerEvents: 'none'
+        }} />
+
+        {/* Centered brand mark only */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '20px' }}>
+          <div style={{
+            width: '80px', height: '80px', borderRadius: '22px',
+            background: 'linear-gradient(135deg, #2563eb, #60a5fa)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 40px rgba(59,130,246,0.3), 0 0 80px rgba(59,130,246,0.12)'
+          }}>
+            <span style={{ fontSize: '36px' }}>🍬</span>
           </div>
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-gray-900">
-              Candy <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">ERP</span>
-            </h1>
-            <p className="text-sm font-medium text-gray-500 mt-1">
-              Enterprise Factory Management System
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ color: '#60a5fa', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.5px', margin: 0 }}>
+              Candy ERP
+            </h2>
+            <p style={{ color: '#374151', fontSize: '13px', marginTop: '6px', fontWeight: 500 }}>
+              Enterprise Factory Management
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Error Alert */}
-        {error && (
-          <div className="p-4 text-xs font-semibold text-red-700 bg-red-50/90 border border-red-200/80 rounded-2xl flex items-center gap-3 animate-shake shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-red-600 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
+      {/* ── RIGHT PANEL: Clean white form ── */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f9fafb',
+        padding: '32px 24px',
+      }}>
+        <div style={{ width: '100%', maxWidth: '400px' }}>
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          {/* Email Input */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Email Address
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Mail className="w-4 h-4" />
-              </div>
-              <input
-                type="email"
-                placeholder="name@candyerp.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-gray-50/80 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-600 focus:bg-white transition-all"
-              />
+          {/* Mobile brand */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '36px' }}>
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '9px',
+              background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <span style={{ fontSize: '16px' }}>🍬</span>
             </div>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: '#111827' }}>Candy ERP</span>
           </div>
 
-          {/* Password Input */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Lock className="w-4 h-4" />
-              </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full pl-10 pr-11 py-3 bg-gray-50/80 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-600 focus:bg-white transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition"
-                aria-label="Toggle password visibility"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+          {/* Heading */}
+          <div style={{ marginBottom: '28px' }}>
+            <h1 style={{
+              fontSize: '26px', fontWeight: 800, color: '#111827',
+              letterSpacing: '-0.5px', margin: 0, marginBottom: '6px'
+            }}>
+              Sign in to your account
+            </h1>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+              Welcome back — enter your credentials below
+            </p>
+          </div>
+
+          {/* Error banner */}
+          {error && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '12px 16px', borderRadius: '10px',
+              background: '#fef2f2', border: '1px solid #fecaca',
+              marginBottom: '20px'
+            }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ef4444', flexShrink: 0 }} />
+              <p style={{ fontSize: '13px', color: '#b91c1c', fontWeight: 500, margin: 0 }}>{error}</p>
             </div>
-          </div>
+          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Authenticating...</span>
-              </>
-            ) : (
-              <>
-                <span>Sign In to Dashboard</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
-        </form>
+          {/* Form */}
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
-        {/* Quick Test Accounts Selector */}
-        <div className="pt-4 border-t border-gray-100">
-          <p className="text-center text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">
-            Quick Fill Demo Accounts
-          </p>
-          <div className="grid grid-cols-2 gap-2.5">
+            {/* Email */}
+            <div>
+              <label style={{
+                display: 'block', fontSize: '12px', fontWeight: 700,
+                color: '#374151', marginBottom: '7px',
+                letterSpacing: '0.6px', textTransform: 'uppercase'
+              }}>
+                Email Address
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{
+                  position: 'absolute', left: '14px', top: '50%',
+                  transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none',
+                  display: 'flex'
+                }}>
+                  <Mail size={15} />
+                </span>
+                <input
+                  id="login-email"
+                  type="email"
+                  placeholder="name@candyerp.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    paddingLeft: '40px', paddingRight: '16px',
+                    paddingTop: '12px', paddingBottom: '12px',
+                    fontSize: '14px', color: '#111827',
+                    background: '#fff', border: '1.5px solid #e5e7eb',
+                    borderRadius: '10px', outline: 'none',
+                    transition: 'border-color 0.18s, box-shadow 0.18s'
+                  }}
+                  onFocus={e => {
+                    e.target.style.borderColor = '#3b82f6';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.12)';
+                  }}
+                  onBlur={e => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label style={{
+                display: 'block', fontSize: '12px', fontWeight: 700,
+                color: '#374151', marginBottom: '7px',
+                letterSpacing: '0.6px', textTransform: 'uppercase'
+              }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{
+                  position: 'absolute', left: '14px', top: '50%',
+                  transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none',
+                  display: 'flex'
+                }}>
+                  <Lock size={15} />
+                </span>
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    paddingLeft: '40px', paddingRight: '46px',
+                    paddingTop: '12px', paddingBottom: '12px',
+                    fontSize: '14px', color: '#111827',
+                    background: '#fff', border: '1.5px solid #e5e7eb',
+                    borderRadius: '10px', outline: 'none',
+                    transition: 'border-color 0.18s, box-shadow 0.18s'
+                  }}
+                  onFocus={e => {
+                    e.target.style.borderColor = '#3b82f6';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.12)';
+                  }}
+                  onBlur={e => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <button
+                  type="button"
+                  id="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%',
+                    transform: 'translateY(-50%)', background: 'none',
+                    border: 'none', cursor: 'pointer', color: '#9ca3af',
+                    padding: '4px', display: 'flex', alignItems: 'center'
+                  }}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit button — blue to match sidebar accent */}
             <button
+              id="login-submit"
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%', marginTop: '4px',
+                padding: '13px 24px',
+                background: loading
+                  ? '#93c5fd'
+                  : 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+                color: '#fff', fontWeight: 700, fontSize: '14px',
+                borderRadius: '10px', border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                boxShadow: loading ? 'none' : '0 4px 16px rgba(37,99,235,0.35)',
+                transition: 'all 0.2s', letterSpacing: '0.2px'
+              }}
+              onMouseEnter={e => {
+                if (!loading) {
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 22px rgba(37,99,235,0.5)';
+                  (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(37,99,235,0.35)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+              }}
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  <span>Authenticating...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In to Dashboard</span>
+                  <ArrowRight size={15} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0' }}>
+            <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
+            <span style={{
+              fontSize: '10px', color: '#9ca3af', fontWeight: 700,
+              letterSpacing: '1.2px', textTransform: 'uppercase'
+            }}>Demo Accounts</span>
+            <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
+          </div>
+
+          {/* Quick fill buttons */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <button
+              id="quick-admin"
               type="button"
               onClick={() => fillQuickAccount('owner.test@candyerp.test')}
-              className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-xl border border-indigo-200/60 transition text-center truncate flex items-center justify-center gap-1.5"
+              style={{
+                padding: '10px 14px', background: '#fff',
+                border: '1.5px solid #bfdbfe', borderRadius: '10px',
+                fontSize: '12px', fontWeight: 600, color: '#1d4ed8',
+                cursor: 'pointer', transition: 'all 0.18s',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#eff6ff';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#93c5fd';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#fff';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#bfdbfe';
+              }}
             >
-              <span>⚡ Admin Account</span>
+              ⚡ Admin Account
             </button>
             <button
+              id="quick-staff"
               type="button"
               onClick={() => fillQuickAccount('staff.test@candyerp.test')}
-              className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-xl border border-blue-200/60 transition text-center truncate flex items-center justify-center gap-1.5"
+              style={{
+                padding: '10px 14px', background: '#fff',
+                border: '1.5px solid #bfdbfe', borderRadius: '10px',
+                fontSize: '12px', fontWeight: 600, color: '#1d4ed8',
+                cursor: 'pointer', transition: 'all 0.18s',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#eff6ff';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#93c5fd';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#fff';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#bfdbfe';
+              }}
             >
-              <span>👥 Staff Account</span>
+              👥 Staff Account
             </button>
           </div>
-        </div>
 
-        {/* Security Footer Badge */}
-        <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-gray-400 pt-1">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Protected by 256-Bit RLS & Supabase Auth</span>
-        </div>
+          {/* Security note */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '6px', marginTop: '24px'
+          }}>
+            <ShieldCheck size={13} color="#10b981" />
+            <span style={{ fontSize: '11px', color: '#9ca3af' }}>
+              Protected by 256-Bit RLS &amp; Supabase Auth
+            </span>
+          </div>
 
+        </div>
       </div>
+
+      {/* Responsive CSS for left panel */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @media (min-width: 1024px) {
+          .lg-panel { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
